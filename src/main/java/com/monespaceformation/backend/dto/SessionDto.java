@@ -1,12 +1,7 @@
-package com.monespaceformation.backend.model;
+package com.monespaceformation.backend.dto;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+public class SessionDto {
 
-@Document(collection = "training")
-public class SessionFormation {
-
-    @Id
     private String id;
 
     private String title;
@@ -28,11 +23,43 @@ public class SessionFormation {
     private String trainerName;
 
     private Integer placesTotales;
-
-    // optionnel (ton front check "formation.sessions || formation.placesTotales")
     private Integer sessions;
 
-    public SessionFormation() {}
+    public SessionDto() {}
+
+    public SessionDto(
+            String id,
+            String title,
+            String reference,
+            String desc,
+            String startDate,
+            String endDate,
+            String duration,
+            String time,
+            Integer price,
+            String category,
+            String level,
+            String location,
+            String trainerName,
+            Integer placesTotales,
+            Integer sessions
+    ) {
+        this.id = id;
+        this.title = title;
+        this.reference = reference;
+        this.desc = desc;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.duration = duration;
+        this.time = time;
+        this.price = price;
+        this.category = category;
+        this.level = level;
+        this.location = location;
+        this.trainerName = trainerName;
+        this.placesTotales = placesTotales;
+        this.sessions = sessions;
+    }
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
