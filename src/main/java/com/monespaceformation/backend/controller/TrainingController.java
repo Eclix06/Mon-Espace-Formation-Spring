@@ -14,7 +14,7 @@ import java.util.Optional;
  * Controller pour gérer les formations (trainings)
  */
 @RestController
-@RequestMapping("/api/training")
+@RequestMapping("/api/trainings")
 @CrossOrigin(originPatterns = {"http://localhost:5173", "https://*.vercel.app"})
 public class TrainingController {
 
@@ -26,7 +26,7 @@ public class TrainingController {
 
     /**
      * Récupérer toutes les formations
-     * GET /api/training
+     * GET /api/trainings
      */
     @GetMapping
     public ResponseEntity<List<Training>> getAllTrainings() {
@@ -41,7 +41,7 @@ public class TrainingController {
 
     /**
      * Créer une nouvelle formation
-     * POST /api/training
+     * POST /api/trainings
      */
     @PostMapping
     public ResponseEntity<Training> createTraining(@RequestBody Training training) {
@@ -72,7 +72,7 @@ public class TrainingController {
 
     /**
      * Récupérer une formation par son ID
-     * GET /api/training/{id}
+     * GET /api/trainings/{id}
      */
     @GetMapping("/{id}")
     public ResponseEntity<Training> getTrainingById(@PathVariable String id) {
@@ -91,7 +91,7 @@ public class TrainingController {
 
     /**
      * Mettre à jour une formation
-     * PUT /api/training/{id}
+     * PUT /api/trainings/{id}
      */
     @PutMapping("/{id}")
     public ResponseEntity<Training> updateTraining(@PathVariable String id, @RequestBody Training trainingUpdate) {
@@ -139,7 +139,7 @@ public class TrainingController {
 
     /**
      * Supprimer une formation
-     * DELETE /api/training/{id}
+     * DELETE /api/trainings/{id}
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteTraining(@PathVariable String id) {
