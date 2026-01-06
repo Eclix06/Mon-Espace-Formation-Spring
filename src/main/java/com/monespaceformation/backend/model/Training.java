@@ -19,6 +19,7 @@ public class Training {
     private String endDate;        // Ex: 19 Janvier 2025
     private String duration;       // Ex: 60 Jours (ou heures)
     private String location;       // Ex: 42 Avenue des Champs...
+    private Double price;          // Prix en euros
 
     // Infos du formateur
     private String trainerName;    // Ex: Jean-Pierre Martin

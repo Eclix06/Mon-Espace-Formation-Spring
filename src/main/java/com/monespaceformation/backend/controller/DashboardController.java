@@ -1,11 +1,13 @@
 package com.monespaceformation.backend.controller;
 
+import com.monespaceformation.backend.dto.AdminDashboardSummaryDTO;
 import com.monespaceformation.backend.dto.DashboardSummary;
 import com.monespaceformation.backend.model.Inscription;
 import com.monespaceformation.backend.model.SessionFormation;
 import com.monespaceformation.backend.model.User;
 import com.monespaceformation.backend.repository.InscriptionRepository;
 import com.monespaceformation.backend.repository.SessionRepository;
+import com.monespaceformation.backend.repository.TrainingRepository;
 import com.monespaceformation.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +19,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/dashboard")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(originPatterns = {"http://localhost:5173", "https://*.vercel.app"})
 public class DashboardController {
 
     @Autowired
@@ -28,6 +30,9 @@ public class DashboardController {
 
     @Autowired
     private SessionRepository sessionRepository;
+
+    @Autowired
+    private TrainingRepository trainingRepository;
 
     @GetMapping("/{email}")
     public ResponseEntity<?> getDashboard(@PathVariable String email) {
@@ -71,6 +76,29 @@ public class DashboardController {
             
             return ResponseEntity.ok(summary);
 
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    // ENDPOINT POUR LES STATISTIQUES GLOBALES DE L'ADMIN
+    @GetMapping("/summary")
+    public ResponseEntity<AdminDashboardSummaryDTO> getAdminSummary() {
+        try {
+            int totalInscriptions = (int) inscriptionRepository.count();
+            int totalTrainings = (int) trainingRepository.count();
+            int totalSessions = (int) sessionRepository.count();
+            int totalUsers = (int) userRepository.count();
+
+            AdminDashboardSummaryDTO summary = new AdminDashboardSummaryDTO(
+                totalInscriptions,
+                totalTrainings,
+                totalSessions,
+                totalUsers
+            );
+
+            return ResponseEntity.ok(summary);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().build();

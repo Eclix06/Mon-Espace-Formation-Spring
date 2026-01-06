@@ -2,6 +2,7 @@ package com.monespaceformation.backend.repository;
 
 import com.monespaceformation.backend.model.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends MongoRepository<User, String> {
@@ -10,4 +11,7 @@ public interface UserRepository extends MongoRepository<User, String> {
 
     // Permet de savoir si un email existe déjà (pour l'Inscription)
     Boolean existsByEmail(String email);
+
+    // Permet de trouver tous les utilisateurs par rôle (pour les formateurs)
+    List<User> findByRole(String role);
 }

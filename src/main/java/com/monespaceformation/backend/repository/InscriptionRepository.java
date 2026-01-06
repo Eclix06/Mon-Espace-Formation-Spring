@@ -12,4 +12,7 @@ public interface InscriptionRepository extends MongoRepository<Inscription, Stri
     
     // Vérifier si un utilisateur est déjà inscrit à une session
     boolean existsByUserIdAndSessionId(String userId, String sessionId);
+    
+    // Trouver toutes les inscriptions d'une session
+    List<Inscription> findBySessionId(String sessionId);
 }

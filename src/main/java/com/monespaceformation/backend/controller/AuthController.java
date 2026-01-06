@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
-// @CrossOrigin(origins = "http://localhost:5173") // Décommentez si besoin
+// @CrossOrigin(originPatterns = {"http://localhost:5173", "https://*.vercel.app"}) // Décommentez si besoin
 public class AuthController {
 
     @Autowired
