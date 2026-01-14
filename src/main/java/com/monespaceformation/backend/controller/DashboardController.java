@@ -78,7 +78,11 @@ public class DashboardController {
             );
 
             // 5. Créer et renvoyer le résumé avec la LISTE
-            DashboardSummary summary = new DashboardSummary(user, mesSessions, stats);
+            List<SessionFormation> sessions = new ArrayList<>();
+            for (SessionWithNote sn : mesSessions) {
+                sessions.add(sn.getSession());
+            }
+            DashboardSummary summary = new DashboardSummary(user, sessions, stats);
             
             return ResponseEntity.ok(summary);
 
