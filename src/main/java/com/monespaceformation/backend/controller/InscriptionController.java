@@ -35,12 +35,35 @@ public class InscriptionController {
 
     // 1. S'INSCRIRE (POST)
     @PostMapping
-    public Inscription createInscription(@RequestBody Inscription inscription) {
+    public ResponseEntity<?> createInscription(@RequestBody Inscription inscription) {
+        try {
+            // Vérifier que les champs obligatoires sont présents
+            if (inscription.getUserId() == null || inscription.getUserId().isEmpty()) {
+                return ResponseEntity.badRequest().body("L'ID utilisateur est requis");
+            }
+            
+            if (inscription.getSessionId() == null || inscription.getSessionId().isEmpty()) {
+                return ResponseEntity.badRequest().body("L'ID de session est requis");
+            }
+            
         // On vérifie si l'utilisateur n'est pas déjà inscrit
         if (inscriptionRepository.existsByUserIdAndSessionId(inscription.getUserId(), inscription.getSessionId())) {
-            throw new RuntimeException("Utilisateur déjà inscrit à cette session !");
+                return ResponseEntity.badRequest().body("Vous êtes déjà inscrit à cette session !");
+            }
+            
+            // Vérifier que la session existe
+            String sessionId = inscription.getSessionId();
+            Optional<SessionFormation> sessionOpt = (sessionId != null) ? sessionRepository.findById(sessionId) : Optional.empty();
+            if (sessionOpt.isEmpty()) {
+                return ResponseEntity.badRequest().body("La session sélectionnée n'existe pas");
+            }
+            
+            // Initialiser la date d'inscription si elle n'est pas définie
+            if (inscription.getDateInscription() == null) {
+                inscription.setDateInscription(java.time.LocalDate.now());
         }
         
+            // Sauvegarder l'inscription
         Inscription saved = inscriptionRepository.save(inscription);
         
         // Créer une notification pour l'admin
@@ -49,7 +72,8 @@ public class InscriptionController {
             String trainingTitle = "N/A";
             
             // Récupérer le nom de l'utilisateur
-            Optional<User> userOpt = userRepository.findById(inscription.getUserId());
+            String userId = inscription.getUserId();
+            Optional<User> userOpt = (userId != null) ? userRepository.findById(userId) : Optional.empty();
             if (userOpt.isPresent()) {
                 User user = userOpt.get();
                 userName = (user.getPrenom() != null ? user.getPrenom() : "") + " " + 
@@ -67,12 +91,9 @@ public class InscriptionController {
             }
             
             // Récupérer le titre de la formation
-            Optional<SessionFormation> sessionOpt = sessionRepository.findById(inscription.getSessionId());
-            if (sessionOpt.isPresent()) {
                 SessionFormation session = sessionOpt.get();
                 if (session.getTitle() != null) {
                     trainingTitle = session.getTitle();
-                }
             }
             
             // Créer la notification
@@ -83,10 +104,16 @@ public class InscriptionController {
             notificationRepository.save(notification);
         } catch (Exception e) {
             // Ne pas faire échouer l'inscription si la notification échoue
+                System.err.println("Erreur lors de la création de la notification: " + e.getMessage());
+                e.printStackTrace();
+            }
+            
+            return ResponseEntity.ok(saved);
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la création de l'inscription: " + e.getMessage());
             e.printStackTrace();
+            return ResponseEntity.internalServerError().body("Erreur lors de la création de l'inscription: " + e.getMessage());
         }
-        
-        return saved;
     }
 
     // 2. VOIR MES INSCRIPTIONS (GET)
@@ -106,7 +133,8 @@ public class InscriptionController {
                 // Récupérer les informations de l'utilisateur
                 String userName = "N/A";
                 String userEmail = "N/A";
-                Optional<User> userOpt = userRepository.findById(insc.getUserId());
+                String inscUserId = insc.getUserId();
+                Optional<User> userOpt = (inscUserId != null) ? userRepository.findById(inscUserId) : Optional.empty();
                 if (userOpt.isPresent()) {
                     User user = userOpt.get();
                     userName = (user.getPrenom() != null ? user.getPrenom() : "") + " " + 
@@ -134,7 +162,8 @@ public class InscriptionController {
                 // Récupérer les informations de la session/formation
                 String trainingTitle = "N/A";
                 String sessionDate = "N/A";
-                Optional<SessionFormation> sessionOpt = sessionRepository.findById(insc.getSessionId());
+                String inscSessionId = insc.getSessionId();
+                Optional<SessionFormation> sessionOpt = (inscSessionId != null) ? sessionRepository.findById(inscSessionId) : Optional.empty();
                 if (sessionOpt.isPresent()) {
                     SessionFormation session = sessionOpt.get();
                     trainingTitle = session.getTitle() != null ? session.getTitle() : "N/A";
@@ -165,6 +194,9 @@ public class InscriptionController {
     @PutMapping("/{id}")
     public ResponseEntity<Inscription> updateInscription(@PathVariable String id, @RequestBody Inscription inscriptionUpdate) {
         try {
+            if (id == null) {
+                return ResponseEntity.badRequest().build();
+            }
             Optional<Inscription> inscriptionOpt = inscriptionRepository.findById(id);
             if (inscriptionOpt.isEmpty()) {
                 return ResponseEntity.notFound().build();
@@ -176,6 +208,16 @@ public class InscriptionController {
             if (inscriptionUpdate.getStatus() != null) {
                 inscription.setStatus(inscriptionUpdate.getStatus());
             }
+            
+            // Mettre à jour la note si fournie
+            if (inscriptionUpdate.getNote() != null) {
+                // Valider que la note est entre 0 et 20
+                Double noteValue = inscriptionUpdate.getNote();
+                if (noteValue < 0 || noteValue > 20) {
+                    return ResponseEntity.badRequest().build();
+                }
+                inscription.setNote(noteValue);
+            }
 
             Inscription saved = inscriptionRepository.save(inscription);
             return ResponseEntity.ok(saved);
@@ -185,11 +227,66 @@ public class InscriptionController {
         }
     }
 
+    // 6. ATTRIBUER UNE NOTE À UN ÉLÈVE (PUT)
+    @PutMapping("/{id}/note")
+    public ResponseEntity<?> updateNote(@PathVariable String id, @RequestBody java.util.Map<String, Object> requestBody) {
+        try {
+            if (id == null) {
+                return ResponseEntity.badRequest().body("L'ID de l'inscription est requis");
+            }
+            
+            Optional<Inscription> inscriptionOpt = inscriptionRepository.findById(id);
+            if (inscriptionOpt.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            Inscription inscription = inscriptionOpt.get();
+            
+            // Récupérer la note depuis le body
+            Object noteObj = requestBody.get("note");
+            if (noteObj == null) {
+                return ResponseEntity.badRequest().body("La note est requise");
+            }
+            
+            Double note;
+            try {
+                if (noteObj instanceof Number) {
+                    note = ((Number) noteObj).doubleValue();
+                } else if (noteObj instanceof String) {
+                    String noteStr = (String) noteObj;
+                    if (noteStr.trim().isEmpty()) {
+                        // Permettre de supprimer la note en envoyant une chaîne vide
+                        inscription.setNote(null);
+                        Inscription saved = inscriptionRepository.save(inscription);
+                        return ResponseEntity.ok(saved);
+                    }
+                    note = Double.parseDouble(noteStr);
+                } else {
+                    return ResponseEntity.badRequest().body("Format de note invalide");
+                }
+            } catch (NumberFormatException e) {
+                return ResponseEntity.badRequest().body("La note doit être un nombre");
+            }
+            
+            // Valider que la note est entre 0 et 20
+            if (note < 0 || note > 20) {
+                return ResponseEntity.badRequest().body("La note doit être comprise entre 0 et 20");
+            }
+            
+            inscription.setNote(note);
+            Inscription saved = inscriptionRepository.save(inscription);
+            return ResponseEntity.ok(saved);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("Erreur lors de la mise à jour de la note: " + e.getMessage());
+        }
+    }
+
     // 5. SUPPRIMER UNE INSCRIPTION (DELETE)
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteInscription(@PathVariable String id) {
         try {
-            if (!inscriptionRepository.existsById(id)) {
+            if (id == null || !inscriptionRepository.existsById(id)) {
                 return ResponseEntity.notFound().build();
             }
 
