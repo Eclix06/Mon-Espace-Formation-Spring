@@ -6,5 +6,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SessionRepository extends MongoRepository<SessionFormation, String> {
-    // Rien à ajouter ici, MongoRepository fait tout le travail magique !
 }
