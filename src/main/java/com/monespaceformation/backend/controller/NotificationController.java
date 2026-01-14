@@ -80,6 +80,9 @@ public class NotificationController {
     @PutMapping("/{id}/read")
     public ResponseEntity<?> markAsRead(@PathVariable String id) {
         try {
+            if (id == null) {
+                return ResponseEntity.badRequest().build();
+            }
             Notification notification = notificationRepository.findById(id).orElse(null);
             if (notification != null) {
                 notification.setRead(true);
