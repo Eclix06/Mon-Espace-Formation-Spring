@@ -57,8 +57,7 @@ public class AttestationController {
                     // Récupérer les informations de l'utilisateur
                     String userName = "N/A";
                     String userEmail = "N/A";
-                    String userId = insc.getUserId();
-                    Optional<User> userOpt = (userId != null) ? userRepository.findById(userId) : Optional.empty();
+                    Optional<User> userOpt = userRepository.findById(insc.getUserId());
                     if (userOpt.isPresent()) {
                         User user = userOpt.get();
                         userName = (user.getPrenom() != null ? user.getPrenom() : "") + " " + 
@@ -82,8 +81,7 @@ public class AttestationController {
                     // Récupérer les informations de la session/formation
                     String trainingTitle = "N/A";
                     String sessionDate = "N/A";
-                    String sessionId = insc.getSessionId();
-                    Optional<SessionFormation> sessionOpt = (sessionId != null) ? sessionRepository.findById(sessionId) : Optional.empty();
+                    Optional<SessionFormation> sessionOpt = sessionRepository.findById(insc.getSessionId());
                     if (sessionOpt.isPresent()) {
                         SessionFormation session = sessionOpt.get();
                         trainingTitle = session.getTitle() != null ? session.getTitle() : "N/A";

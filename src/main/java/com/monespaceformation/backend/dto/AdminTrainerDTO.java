@@ -9,8 +9,6 @@ public class AdminTrainerDTO {
     private String email;
     private String speciality;
     private int activeSessions;
-    private String typeContrat;
-    private Double tarif;
 
     public AdminTrainerDTO() {}
 
@@ -20,16 +18,6 @@ public class AdminTrainerDTO {
         this.email = email;
         this.speciality = speciality;
         this.activeSessions = activeSessions;
-    }
-
-    public AdminTrainerDTO(String id, String fullname, String email, String speciality, int activeSessions, String typeContrat, Double tarif) {
-        this.id = id;
-        this.fullname = fullname;
-        this.email = email;
-        this.speciality = speciality;
-        this.activeSessions = activeSessions;
-        this.typeContrat = typeContrat;
-        this.tarif = tarif;
     }
 
     // Getters et Setters
@@ -47,11 +35,5 @@ public class AdminTrainerDTO {
 
     public int getActiveSessions() { return activeSessions; }
     public void setActiveSessions(int activeSessions) { this.activeSessions = activeSessions; }
-
-    public String getTypeContrat() { return typeContrat; }
-    public void setTypeContrat(String typeContrat) { this.typeContrat = typeContrat; }
-
-    public Double getTarif() { return tarif; }
-    public void setTarif(Double tarif) { this.tarif = tarif; }
 }
 

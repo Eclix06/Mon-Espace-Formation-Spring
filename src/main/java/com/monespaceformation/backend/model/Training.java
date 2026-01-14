@@ -25,19 +25,9 @@ public class Training {
     private String trainerName;    // Ex: Jean-Pierre Martin
     private String trainerRole;    // Ex: Expert React & TypeScript
     private String trainerEmail;
-    private String trainerId;      // ID du formateur (User.id) pour lier la formation au formateur
 
     // Statut (pour l'affichage "A Venir", "En cours")
     private String status;
-
-    // Description et contenu pédagogique (éditable par le formateur)
-    private String description;        // Description générale de la formation (visible dans le catalogue)
-    private List<String> objectifs;    // Liste des objectifs de la formation
-    private List<String> prerequis;    // Liste des prérequis
-    private String programme;           // Programme détaillé de la formation
-
-    // Image d'aperçu de la formation
-    private String imageUrl;           // URL ou base64 de l'image d'aperçu
 
     // Liste des documents (simulés pour l'instant)
     private List<TrainingDocument> documents;
