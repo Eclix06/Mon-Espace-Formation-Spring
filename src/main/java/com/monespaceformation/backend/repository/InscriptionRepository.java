@@ -15,4 +15,7 @@ public interface InscriptionRepository extends MongoRepository<Inscription, Stri
     
     // Trouver toutes les inscriptions d'une session
     List<Inscription> findBySessionId(String sessionId);
+    
+    // Trouver toutes les inscriptions d'une formation
+    List<Inscription> findByFormationId(String formationId);
 }
